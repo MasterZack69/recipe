@@ -1,0 +1,145 @@
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Inter:wght@300;400;500&display=swap');
+
+:root {
+  --bg: #202124;
+  --panel: #2b2d31;
+  --text: #e8e8e8;
+  --muted: #b9bcc1;
+  --border: rgba(232, 232, 232, 0.24);
+  --accent: #f4e7cd;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  font-family: Inter, system-ui, sans-serif;
+  color: var(--text);
+  background:
+    radial-gradient(circle at 10% 20%, rgba(255, 255, 255, 0.05), transparent 45%),
+    radial-gradient(circle at 90% 0%, rgba(255, 255, 255, 0.03), transparent 40%),
+    var(--bg);
+  line-height: 1.7;
+}
+
+.container {
+  width: min(960px, 90vw);
+  margin-inline: auto;
+}
+
+.site-header {
+  border-bottom: 1px solid var(--border);
+  padding: 1.2rem 0;
+  margin-bottom: 2rem;
+}
+
+.brand {
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-size: clamp(1.6rem, 4vw, 2rem);
+  letter-spacing: 0.03em;
+  color: var(--accent);
+  text-decoration: none;
+}
+
+.page-intro h1,
+.recipe-detail h1 {
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-weight: 600;
+  font-size: clamp(2.1rem, 8vw, 3.4rem);
+  margin: 0;
+}
+
+.page-intro p {
+  color: var(--muted);
+  margin-bottom: 2rem;
+}
+
+.recipe-grid {
+  display: grid;
+  gap: 1rem;
+}
+
+.recipe-card,
+.recipe-detail {
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+  background: linear-gradient(155deg, rgba(255, 255, 255, 0.03), rgba(255, 255, 255, 0.01));
+}
+
+.recipe-card {
+  padding: 1.2rem 1.1rem;
+}
+
+.recipe-card h2 {
+  margin: 0;
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  font-size: clamp(1.5rem, 4vw, 1.8rem);
+}
+
+.recipe-card a {
+  color: var(--text);
+  text-decoration: none;
+}
+
+.recipe-card a:hover {
+  color: var(--accent);
+}
+
+.meta {
+  color: var(--muted);
+  font-size: 0.95rem;
+  margin: 0.35rem 0 0.75rem;
+}
+
+.tags {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.tags li {
+  border: 1px solid var(--border);
+  border-radius: 99px;
+  font-size: 0.78rem;
+  padding: 0.15rem 0.65rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.recipe-detail {
+  padding: clamp(1rem, 4vw, 2rem);
+  margin-bottom: 3rem;
+}
+
+.recipe-content {
+  border-top: 1px solid var(--border);
+  margin-top: 1rem;
+  padding-top: 1.2rem;
+}
+
+.recipe-content h2,
+.recipe-content h3 {
+  font-family: 'Cormorant Garamond', Georgia, serif;
+  margin-bottom: 0.5rem;
+}
+
+.recipe-content ul,
+.recipe-content ol {
+  padding-left: 1.2rem;
+}
+
+@media (min-width: 700px) {
+  .recipe-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .recipe-detail {
+    padding: 2.25rem;
+  }
+}
