@@ -145,8 +145,7 @@ const renderRecipeList = (recipes: Recipe[]) => {
   return pageTemplate(
     "MasterZack's Master Recipes",
     `<section class="page-intro">
-      <h1>MasterZack's Master Recipes</h1>
-      <p>Elegant, practical recipes collected in one quiet place.</p>
+      <h1>My Personal Favorites</h1>
       <div class="search-controls">
         <label for="recipe-search">Search recipes</label>
         <input
@@ -194,12 +193,13 @@ const renderTagPage = (tag: string, recipes: Recipe[]) =>
       <h1>Tag: ${tag}</h1>
       <p>Recipes filed under this tag.</p>
     </section>
-    <section class="recipe-grid">${renderRecipeCards(recipes, '../recipes', './')}</section>`,
+    <section class="recipe-grid">${renderRecipeCards(recipes, '../recipes', '.')}</section>`,
     {
       stylesheetHref: '../assets/styles.css',
       homeHref: '../index.html',
     }
-  );
+ );
+
 const build = async () => {
   await rm(distDir, { recursive: true, force: true });
   await mkdir(distRecipesDir, { recursive: true });
