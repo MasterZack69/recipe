@@ -17,30 +17,56 @@ interface Recipe {
   html: string;
 }
 
+interface SearchRecord {
+  title: string;
+  slug: string;
+  tags: string[];
+}
+
+interface TemplateOptions {
+  stylesheetHref: string;
+  homeHref: string;
+  scriptSrc?: string;
+}
+
 const contentDir = join(process.cwd(), 'content/recipes');
 const distDir = join(process.cwd(), 'dist');
 const distRecipesDir = join(distDir, 'recipes');
+const distTagsDir = join(distDir, 'tags');
 
-const pageTemplate = (title: string, body: string, stylesheetHref: string) => `<!doctype html>
+const pageTemplate = (title: string, body: string, options: TemplateOptions) => {
+  const scriptTag = options.scriptSrc
+    ? `\n    <script type="module" src="${options.scriptSrc}"></script>`
+    : '';
+
+  return `<!doctype html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>${title}</title>
-    <link rel="stylesheet" href="${stylesheetHref}" />
+    <link rel="stylesheet" href="${options.stylesheetHref}" />${scriptTag}
   </head>
   <body>
     <header class="site-header">
       <div class="container">
-        <a class="brand" href="./index.html">Recipe Journal</a>
+        <a class="brand" href="${options.homeHref}">Recipe Journal</a>
       </div>
     </header>
     <main class="container">${body}</main>
   </body>
 </html>`;
+};
 
 const slugFromFilename = (filename: string) =>
   basename(filename, '.md')
+    .trim()
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, '-')
+    .replace(/^-+|-+$/g, '');
+
+const slugFromTag = (tag: string) =>
+  tag
     .trim()
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, '-')
@@ -81,35 +107,64 @@ const parseRecipe = async (filename: string): Promise<Recipe> => {
     slug: slugFromFilename(filename),
     title: frontmatter.title,
     date: frontmatter.date,
-    tags: Array.isArray(frontmatter.tags) ? frontmatter.tags : [],
+    tags: Array.isArray(frontmatter.tags)
+      ? frontmatter.tags
+          .map((tag) => String(tag).trim())
+          .filter((tag) => tag.length > 0)
+      : [],
     html
   };
 };
 
-const renderRecipeList = (recipes: Recipe[]) => {
-  const items = recipes.length
+const renderTagList = (tags: string[], tagsBasePath: string) =>
+  tags
+    .map((tag) => `<li><a href="${tagsBasePath}/${slugFromTag(tag)}.html">${tag}</a></li>`)
+    .join('');
+
+const renderRecipeCards = (recipes: Recipe[], recipesBasePath: string, tagsBasePath: string) =>
+  recipes.length
     ? recipes
         .map(
           (recipe) => `
-      <article class="recipe-card">
-        <h2><a href="./recipes/${recipe.slug}.html">${recipe.title}</a></h2>
+         <article class="recipe-card" data-slug="${recipe.slug}" data-title="${recipe.title.toLowerCase()}" data-tags="${recipe.tags
+            .map((tag) => tag.toLowerCase())
+            .join(' ')}">
+        <h2><a href="${recipesBasePath}/${recipe.slug}.html">${recipe.title}</a></h2>
         <p class="meta">${formatDate(recipe.date)}</p>
         <ul class="tags">
-          ${recipe.tags.map((tag) => `<li>${tag}</li>`).join('')}
+        ${renderTagList(recipe.tags, tagsBasePath)}
         </ul>
       </article>`
         )
         .join('')
     : '<p class="meta">No recipes yet.</p>';
 
-  return pageTemplate(
+  const renderRecipeList = (recipes: Recipe[]) => {
+  const cards = renderRecipeCards(recipes, './recipes', './tags');
+
+return pageTemplate(
     'Recipe Journal',
     `<section class="page-intro">
       <h1>Recipe Journal</h1>
       <p>Elegant, practical recipes collected in one quiet place.</p>
+      <div class="search-controls">
+        <label for="recipe-search">Search recipes</label>
+        <input
+          id="recipe-search"
+          class="search-input"
+          type="search"
+          placeholder="Search by title or tag"
+          autocomplete="off"
+        />
+      </div>
     </section>
-    <section class="recipe-grid">${items}</section>`,
-    './assets/styles.css'
+    <section class="recipe-grid" id="recipe-grid">${cards}</section>
+    <p class="meta search-empty" id="search-empty" hidden>No recipes match your search.</p>`,
+    {
+      stylesheetHref: './assets/styles.css',
+      homeHref: './index.html',
+      scriptSrc: './assets/search.js'
+    }
   );
 };
 
@@ -121,29 +176,75 @@ const renderRecipePage = (recipe: Recipe) =>
         <h1>${recipe.title}</h1>
         <p class="meta">${formatDate(recipe.date)}</p>
         <ul class="tags">
-          ${recipe.tags.map((tag) => `<li>${tag}</li>`).join('')}
+          ${renderTagList(recipe.tags, '../tags')}
         </ul>
       </header>
       <section class="recipe-content">${recipe.html}</section>
     </article>`,
-    '../assets/styles.css'
+    {
+      stylesheetHref: '../assets/styles.css',
+      homeHref: '../index.html'
+    }
   );
 
+const renderTagPage = (tag: string, recipes: Recipe[]) =>
+  pageTemplate(
+    `Tag: ${tag}`,
+    `<section class="page-intro">
+      <h1>Tag: ${tag}</h1>
+      <p>Recipes filed under this tag.</p>
+    </section>
+    <section class="recipe-grid">${renderRecipeCards(recipes, '../recipes', './')}</section>`,
+    {
+      stylesheetHref: '../assets/styles.css',
+      homeHref: '../index.html'
+    }
+  );
 const build = async () => {
   await rm(distDir, { recursive: true, force: true });
   await mkdir(distRecipesDir, { recursive: true });
+  await mkdir(distTagsDir, { recursive: true });
 
   const files = (await readdir(contentDir)).filter((name) => name.endsWith('.md'));
   const recipes = await Promise.all(files.map(parseRecipe));
   recipes.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
-  await writeFile(join(distDir, 'index.html'), renderRecipeList(recipes), 'utf8');
+const tagMap = new Map<string, { label: string; recipes: Recipe[] }>();
 
-  await Promise.all(
-    recipes.map((recipe) =>
+  for (const recipe of recipes) {
+    for (const tag of recipe.tags) {
+      const slug = slugFromTag(tag);
+      if (!slug) {
+        continue;
+      }
+
+      const existing = tagMap.get(slug);
+      if (existing) {
+        existing.recipes.push(recipe);
+      } else {
+        tagMap.set(slug, { label: tag, recipes: [recipe] });
+      }
+    }
+  }
+
+  const searchIndex: SearchRecord[] = recipes.map((recipe) => ({
+    title: recipe.title,
+    slug: recipe.slug,
+    tags: recipe.tags
+  }));
+
+  await writeFile(join(distDir, 'index.html'), renderRecipeList(recipes), 'utf8');
+  await writeFile(join(distDir, 'search.json'), JSON.stringify(searchIndex, null, 2), 'utf8');
+
+  await Promise.all([
+    ...recipes.map((recipe) =>
       writeFile(join(distRecipesDir, `${recipe.slug}.html`), renderRecipePage(recipe), 'utf8')
+  ),
+    ...Array.from(tagMap.entries()).map(([slug, entry]) =>
+      writeFile(join(distTagsDir, `${slug}.html`), renderTagPage(entry.label, entry.recipes), 'utf8')
+
     )
-  );
+  ]);
 };
 
 build().catch((error) => {

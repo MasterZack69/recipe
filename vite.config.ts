@@ -7,7 +7,10 @@ outDir: 'dist',
 emptyOutDir: false,
 cssCodeSplit: false,
 rollupOptions: {
-input: resolve(__dirname, 'src/main.ts'),
+input: {
+main: resolve(__dirname, 'src/main.ts'),
+search: resolve(__dirname, 'src/search.ts')
+},
 output: {
 entryFileNames: 'assets/[name].js',
 chunkFileNames: 'assets/[name].js',
