@@ -1,10 +1,12 @@
 [
   {
-    "title": "Lemon Herb Pasta",
-    "slug": "pasta",
+    "title": "Zack's Instant Noodles",
+    "slug": "topramen",
     "tags": [
       "veg",
-      "quick"
+      "noodle",
+      "sauce",
+      "instant"
     ]
   }
 ]

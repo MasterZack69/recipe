@@ -1,5 +1,5 @@
 ---
-title: "Zack's Instant Noodles"
+title: "Zackie's Instant Noodles"
 date: "2026-04-12"
 tags: ["veg", "noodle", "sauce", "instant"]
 --- 
