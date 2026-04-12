@@ -126,9 +126,7 @@ const renderRecipeCards = (recipes: Recipe[], recipesBasePath: string, tagsBaseP
     ? recipes
         .map(
           (recipe) => `
-         <article class="recipe-card" data-slug="${recipe.slug}" data-title="${recipe.title.toLowerCase()}" data-tags="${recipe.tags
-            .map((tag) => tag.toLowerCase())
-            .join(' ')}">
+         <article class="recipe-card" data-slug="${recipe.slug}">
         <h2><a href="${recipesBasePath}/${recipe.slug}.html">${recipe.title}</a></h2>
         <p class="meta">${formatDate(recipe.date)}</p>
         <ul class="tags">
@@ -139,10 +137,10 @@ const renderRecipeCards = (recipes: Recipe[], recipesBasePath: string, tagsBaseP
         .join('')
     : '<p class="meta">No recipes yet.</p>';
 
-  const renderRecipeList = (recipes: Recipe[]) => {
+const renderRecipeList = (recipes: Recipe[]) => {
   const cards = renderRecipeCards(recipes, './recipes', './tags');
 
-return pageTemplate(
+  return pageTemplate(
     'Recipe Journal',
     `<section class="page-intro">
       <h1>Recipe Journal</h1>
@@ -209,7 +207,7 @@ const build = async () => {
   const recipes = await Promise.all(files.map(parseRecipe));
   recipes.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
-const tagMap = new Map<string, { label: string; recipes: Recipe[] }>();
+  const tagMap = new Map<string, { label: string; recipes: Recipe[] }>();
 
   for (const recipe of recipes) {
     for (const tag of recipe.tags) {
@@ -239,10 +237,16 @@ const tagMap = new Map<string, { label: string; recipes: Recipe[] }>();
   await Promise.all([
     ...recipes.map((recipe) =>
       writeFile(join(distRecipesDir, `${recipe.slug}.html`), renderRecipePage(recipe), 'utf8')
-  ),
+    ),
     ...Array.from(tagMap.entries()).map(([slug, entry]) =>
-      writeFile(join(distTagsDir, `${slug}.html`), renderTagPage(entry.label, entry.recipes), 'utf8')
-
+      writeFile(
+        join(distTagsDir, `${slug}.html`),
+        renderTagPage(
+          entry.label,
+          [...entry.recipes].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+        ),
+        'utf8'
+      )
     )
   ]);
 };
