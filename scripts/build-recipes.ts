@@ -127,12 +127,13 @@ const renderRecipeCards = (recipes: Recipe[], recipesBasePath: string, tagsBaseP
         .map(
           (recipe) => `
          <article class="recipe-card" data-slug="${recipe.slug}">
-        <a class="recipe-card-hit" href="${recipesBasePath}/${recipe.slug}.html" aria-label="View recipe: ${recipe.title}"></a>
+        <div class="recipe-card-body" data-recipe-href="${recipesBasePath}/${recipe.slug}.html" role="link" tabindex="0" aria-label="View recipe: ${recipe.title}">
         <h2><a class="recipe-title-link" href="${recipesBasePath}/${recipe.slug}.html">${recipe.title}</a></h2>
         <p class="meta">${formatDate(recipe.date)}</p>
         <ul class="tags">
         ${renderTagList(recipe.tags, tagsBasePath)}
         </ul>
+       </div>
       </article>`
         )
         .join('')
@@ -196,7 +197,7 @@ const renderTagPage = (tag: string, recipes: Recipe[]) =>
     <section class="recipe-grid">${renderRecipeCards(recipes, '../recipes', './')}</section>`,
     {
       stylesheetHref: '../assets/styles.css',
-      homeHref: '../index.html'
+      homeHref: '../index.html',
     }
   );
 const build = async () => {
