@@ -32,16 +32,17 @@ body {
 
 .site-header {
   border-bottom: 1px solid var(--border);
-  padding: 1.2rem 0;
+  padding: 0.7rem 0;
   margin-bottom: 2rem;
 }
 
 .brand {
   font-family: 'Cormorant Garamond', Georgia, serif;
-  font-size: clamp(1.6rem, 4vw, 2rem);
-  letter-spacing: 0.03em;
-  color: var(--accent);
+  font-size: clamp(0.95rem, 2.2vw, 1.15rem);
+  letter-spacing: 0.06em;
+  color: rgba(244, 231, 205, 0.78);
   text-decoration: none;
+  text-transform: uppercase;
 }
 
 .page-intro h1,
@@ -102,7 +103,19 @@ body {
 }
 
 .recipe-card {
+  position: relative;
   padding: 1.2rem 1.1rem;
+  transition:
+    transform 170ms ease,
+    border-color 170ms ease,
+    box-shadow 170ms ease;
+}
+
+.recipe-card-hit {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  border-radius: inherit;
 }
 
 .recipe-card h2 {
@@ -111,22 +124,33 @@ body {
   font-size: clamp(1.5rem, 4vw, 1.8rem);
 }
 
-.recipe-card a {
+.recipe-title-link {
   color: var(--text);
   text-decoration: none;
+  transition: color 170ms ease;
 }
 
-.recipe-card a:hover {
+.recipe-card:hover {
+  transform: translateY(-3px);
+  border-color: rgba(244, 231, 205, 0.4);
+  box-shadow: 0 0.4rem 1rem rgba(10, 10, 12, 0.25);
+}
+
+.recipe-card:hover .recipe-title-link {
   color: var(--accent);
 }
 
 .meta {
+  position: relative;
+  z-index: 2;
   color: var(--muted);
   font-size: 0.95rem;
   margin: 0.35rem 0 0.75rem;
 }
 
 .tags {
+  position: relative;
+  z-index: 2;
   margin: 0;
   padding: 0;
   list-style: none;
@@ -154,8 +178,34 @@ body {
 }
 
 .recipe-detail {
+  position: relative;
   padding: clamp(1rem, 4vw, 2rem);
   margin-bottom: 3rem;
+  border-radius: 0.65rem;
+  overflow: hidden;
+}
+
+.recipe-detail::before,
+.recipe-detail::after {
+  content: '';
+  position: absolute;
+  pointer-events: none;
+}
+
+.recipe-detail::before {
+  inset: 0.45rem;
+  border: 1px solid rgba(244, 231, 205, 0.2);
+  border-radius: 0.45rem;
+}
+
+.recipe-detail::after {
+  inset: 0.85rem;
+  border-radius: 0.28rem;
+  background:
+    linear-gradient(to right, rgba(244, 231, 205, 0.55) 0 1.5rem, transparent 1.5rem calc(100% - 1.5rem), rgba(244, 231, 205, 0.55) calc(100% - 1.5rem)),
+    linear-gradient(to bottom, rgba(244, 231, 205, 0.55) 0 1.5rem, transparent 1.5rem calc(100% - 1.5rem), rgba(244, 231, 205, 0.55) calc(100% - 1.5rem));
+  background-repeat: no-repeat;
+  opacity: 0.35;
 }
 
 .recipe-content {

@@ -50,7 +50,7 @@ const pageTemplate = (title: string, body: string, options: TemplateOptions) => 
   <body>
     <header class="site-header">
       <div class="container">
-        <a class="brand" href="${options.homeHref}">Recipe Journal</a>
+        <a class="brand" href="${options.homeHref}">MasterZack's Master Recipes</a>
       </div>
     </header>
     <main class="container">${body}</main>
@@ -127,7 +127,8 @@ const renderRecipeCards = (recipes: Recipe[], recipesBasePath: string, tagsBaseP
         .map(
           (recipe) => `
          <article class="recipe-card" data-slug="${recipe.slug}">
-        <h2><a href="${recipesBasePath}/${recipe.slug}.html">${recipe.title}</a></h2>
+        <a class="recipe-card-hit" href="${recipesBasePath}/${recipe.slug}.html" aria-label="View recipe: ${recipe.title}"></a>
+        <h2><a class="recipe-title-link" href="${recipesBasePath}/${recipe.slug}.html">${recipe.title}</a></h2>
         <p class="meta">${formatDate(recipe.date)}</p>
         <ul class="tags">
         ${renderTagList(recipe.tags, tagsBasePath)}
@@ -141,9 +142,9 @@ const renderRecipeList = (recipes: Recipe[]) => {
   const cards = renderRecipeCards(recipes, './recipes', './tags');
 
   return pageTemplate(
-    'Recipe Journal',
+    "MasterZack's Master Recipes",
     `<section class="page-intro">
-      <h1>Recipe Journal</h1>
+      <h1>MasterZack's Master Recipes</h1>
       <p>Elegant, practical recipes collected in one quiet place.</p>
       <div class="search-controls">
         <label for="recipe-search">Search recipes</label>
