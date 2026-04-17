@@ -145,7 +145,8 @@ const renderRecipeList = (recipes: Recipe[]) => {
   return pageTemplate(
     "MasterZack's Master Recipes",
     `<section class="page-intro">
-      <h1>My Personal Favorites</h1>
+     <h1>My Personal Favorites</h1>
+      <p>An extremely curated collection of good food.</p>
       <div class="search-controls">
         <label for="recipe-search">Search recipes</label>
         <input
