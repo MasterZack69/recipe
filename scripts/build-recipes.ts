@@ -113,18 +113,21 @@ const parseRecipe = async (filename: string): Promise<Recipe> => {
 
   // Markdown is expected to come from trusted local content files.
   const html = await marked.parse(content);
+ 
+  const plainText = html.replace(/<[^>]*>/g, '').trim();
+  const autoDescription = plainText.slice(0, 160).replace(/\s+/g, ' ');
 
   return {
     slug: slugFromFilename(filename),
     title: frontmatter.title,
     date: frontmatter.date,
     tags: Array.isArray(frontmatter.tags)
-      ? frontmatter.tags
-          .map((tag) => String(tag).trim())
-          .filter((tag) => tag.length > 0)
-      : [],
+     ? frontmatter.tags
+        .map((tag) => String(tag).trim())
+        .filter((tag) => tag.length > 0)
+     : [],
     html,
-    description: frontmatter.description ?? '',
+    description: frontmatter.description || autoDescription,
   };
 };
 
@@ -178,6 +181,7 @@ const renderRecipeList = (recipes: Recipe[]) => {
       scriptSrc: './assets/search.js',
       ogTitle: "MasterZack's Master Recipes",
       ogDescription: 'One cookbook to feed them all',
+      ogUrl: 'https://recipe.zackie.site',
     }
   );
 };
@@ -199,7 +203,8 @@ const renderRecipePage = (recipe: Recipe) =>
       stylesheetHref: '../assets/styles.css',
       homeHref: '../index.html',
       ogTitle: recipe.title,
-      ogDescription: `Recipe for ${recipe.title}`,
+      ogDescription: recipe.description,
+      ogUrl: `https://recipe.zackie.site/recipes/${recipe.slug}.html`,
     }
   );
 
