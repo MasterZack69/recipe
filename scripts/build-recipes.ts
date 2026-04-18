@@ -7,6 +7,7 @@ interface RecipeFrontmatter {
   title: string;
   date: string;
   tags?: string[];
+  description?: string;
 }
 
 interface Recipe {
@@ -15,6 +16,7 @@ interface Recipe {
   date: string;
   tags: string[];
   html: string;
+  description: string;
 }
 
 interface SearchRecord {
@@ -27,6 +29,9 @@ interface TemplateOptions {
   stylesheetHref: string;
   homeHref: string;
   scriptSrc?: string;
+  ogTitle?: string;
+  ogDescription?: string;
+  ogUrl?: string;
 }
 
 const contentDir = join(process.cwd(), 'content/recipes');
@@ -39,12 +44,18 @@ const pageTemplate = (title: string, body: string, options: TemplateOptions) => 
     ? `\n    <script type="module" src="${options.scriptSrc}"></script>`
     : '';
 
+  const ogTags = options.ogTitle
+    ? `\n    <meta property="og:title" content="${options.ogTitle}" />
+    <meta property="og:description" content="${options.ogDescription ?? ''}" />
+    <meta property="og:type" content="website" />${options.ogUrl ? `\n    <meta property="og:url" content="${options.ogUrl}" />` : ''}`
+    : '';
+
   return `<!doctype html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>${title}</title>
+    <title>${title}</title>${ogTags}
     <link rel="stylesheet" href="${options.stylesheetHref}" />${scriptTag}
   </head>
   <body>
@@ -112,7 +123,8 @@ const parseRecipe = async (filename: string): Promise<Recipe> => {
           .map((tag) => String(tag).trim())
           .filter((tag) => tag.length > 0)
       : [],
-    html
+    html,
+    description: frontmatter.description ?? '',
   };
 };
 
@@ -163,7 +175,9 @@ const renderRecipeList = (recipes: Recipe[]) => {
     {
       stylesheetHref: './assets/styles.css',
       homeHref: './index.html',
-      scriptSrc: './assets/search.js'
+      scriptSrc: './assets/search.js',
+      ogTitle: "MasterZack's Master Recipes",
+      ogDescription: 'One cookbook to feed them all',
     }
   );
 };
@@ -183,7 +197,9 @@ const renderRecipePage = (recipe: Recipe) =>
     </article>`,
     {
       stylesheetHref: '../assets/styles.css',
-      homeHref: '../index.html'
+      homeHref: '../index.html',
+      ogTitle: recipe.title,
+      ogDescription: `Recipe for ${recipe.title}`,
     }
   );
 
