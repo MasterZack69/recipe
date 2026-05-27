@@ -193,6 +193,7 @@ const renderRecipePage = (recipe: Recipe) =>
       <header>
         <h1>${recipe.title}</h1>
         <p class="meta">${formatDate(recipe.date)}</p>
+        <p>${recipe.description}</p>
         <ul class="tags">
           ${renderTagList(recipe.tags, '../tags')}
         </ul>
