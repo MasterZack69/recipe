@@ -17,7 +17,7 @@ description: "Delicious and relatively cheap noodles."
 - 3 tbsp Naagin Hot Sauce Original
 - Water
 
-## Process
+## Preparation
 
 1. Add the oil on pan with medium heat.
 2. A minute later, add the butter.
